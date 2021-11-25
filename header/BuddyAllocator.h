@@ -2,7 +2,6 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<Windows.h>
-#include"BlockList.h"
 
 #define BLOCK_SIZE (4096)           // fixed size of allocation block
 #define BLOCK_BIT_NUM (12)          // 2 ^ 12 = BLOCK_SIZE 
@@ -21,6 +20,14 @@ typedef struct {
 }*block_ptr_t;
 
 #endif
+
+#ifndef MEM_NODE_TYPE_DEFINITION_
+#define MEM_NODE_TYPE_DEFINITION_
+typedef struct mem_node {
+	struct mem_node* next;
+}mem_node_t;
+#endif
+
 
 
 typedef struct buddy_header {

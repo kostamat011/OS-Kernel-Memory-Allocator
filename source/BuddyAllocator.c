@@ -40,8 +40,7 @@ void b_init(void* memstart, int blocknum) {
 
 		// closest lower logarithm of 2 = index of list to add free space
 		int i = closest_lower_log2(blocknum);
-		//printf("alocira se buddies[%d]", i);
-	
+		
 		// allocate one node in i-th list
 		b_header->buddies[i] = (mem_node_t*) (current_mem);
 		b_header->buddies[i]->next = NULL;
@@ -49,9 +48,6 @@ void b_init(void* memstart, int blocknum) {
 		int shift = pow(2, i);
 		// next free portion begins after 2^i blocks
 		current_mem += shift; 
-
-		//printf(" na adresu %d\n", buddies[i]);
-		
 
 		// continue for the remaining blocks
 		blocknum -= pow(2, i);
@@ -139,30 +135,20 @@ void * b_alloc(int block_num) {
 	{
 		// remove it from its list
 		b_header->buddies[buddy_index] = b_header->buddies[buddy_index]->next;
-
-		// printf("vraca se adresa %d\n", ret_addr);
-
-
-		//*****************************mutex signal************************************
-		if (!ReleaseMutex(b_header->buddy_mutex)) {
-			printf("Error in releasing buddy mutex\n");
-		}
-		//*****************************************************************************
-		return ret_addr;
 	}
 
 	// free address is not found
 	else {
 		printf("NOT ENOUGH MEMORY. ALLOCATION FAILED\n");
-
-		//*****************************mutex signal************************************
-		if (!ReleaseMutex(b_header->buddy_mutex)) {
-			printf("Error in releasing buddy mutex\n");
-		}
-		//*****************************************************************************
-		return NULL;
 	}
-	
+
+	//*****************************mutex signal************************************
+	if (!ReleaseMutex(b_header->buddy_mutex)) {
+		printf("Error in releasing buddy mutex\n");
+	}
+	//*****************************************************************************
+
+	return ret_addr;
 }
 
 void b_free(void* addr, int block_num)
@@ -195,7 +181,6 @@ void b_free(void* addr, int block_num)
 		mem_node_t* current_node = (mem_node_t*)current_mem;
 		current_node->next = b_header->buddies[i];
 		b_header->buddies[i] = current_node;
-		//printf("dodat je blok sa pocetkom %d u listu buddies[%d]\n", current_node, i);
 
 		// try to do merging 
 		b_merge(i);

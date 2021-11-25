@@ -129,6 +129,7 @@ int slab_empty(kmem_cache_t* cache,kmem_slab_t* slab)
 
 		++free;
 	}
+	return 1;
 }
 
 int partial_slab_full(kmem_cache_t* cache)
@@ -682,22 +683,12 @@ void kmem_cache_free(kmem_cache_t* cachep, void* objp)
 				// if object was in full slab that slab is now partial
 				if (result_code == OBJ_FOUND_FULL) {
 					move_full_partial(cachep, current_slab);
-
-					// if that slab became empty move it to empty list
-					if (slab_empty(cachep, current_slab))
-					{
-						move_partial_empty(cachep, current_slab);
-					}
 				}
 
-				// if object was in partial slab than check if slab became empty
-				else if (result_code == OBJ_FOUND_PARTIAL) {
-
-					// if that slab became empty move it to empty list
-					if (slab_empty(cachep, current_slab))
-					{
-						move_partial_empty(cachep, current_slab);
-					}
+				// if that slab became empty move it to empty list
+				if (slab_empty(cachep, current_slab))
+				{
+					move_partial_empty(cachep, current_slab);
 				}
 
 				//*****************************mutex signal************************************
